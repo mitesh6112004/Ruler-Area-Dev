@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login & Signup</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="form-container sign-up">
+      <form>
+        <h1>Create Account</h1>
+        <select>
+          <option value="Student">Student</option>
+          <option value="Faculty">Faculty</option>
+        </select>
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Password" />
+        <button class="btn">Sign Up</button>
+      </form>
+    </div>
+
+    <div class="form-container sign-in">
+      <form id="loginForm">
+        <h1>Sign in</h1>
+        <select>
+          <option value="Student">Student</option>
+          <option value="Faculty">Faculty</option>
+        </select>
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button class="btn" type="submit">Sign In</button>
+      </form>
+    </div>
+
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>To keep connected, please login with your info</p>
+          <button class="ghost" id="signIn">Sign In</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your details to register</p>
+          <button class="ghost" id="signUp">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const signUpButton = document.getElementById("signUp");
+    const signInButton = document.getElementById("signIn");
+    const container = document.getElementById("container");
+
+    signUpButton.addEventListener("click", () => {
+      container.classList.add("sign-up-mode");
+    });
+
+    signInButton.addEventListener("click", () => {
+      container.classList.remove("sign-up-mode");
+    });
+
+    // SIGN UP logic
+    document.querySelector(".sign-up .btn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const role = document.querySelector(".sign-up select").value;
+      const email = document.querySelectorAll(".sign-up input")[0].value;
+      const password = document.querySelectorAll(".sign-up input")[1].value;
+      const name = prompt("Enter your full name:");
+
+      const res = await fetch("http://localhost:5000/api/users/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role })
+      });
+
+      const data = await res.json();
+      alert(data.message || "Signup completed");
+
+      if (res.status === 201) {
+        container.classList.remove("sign-up-mode");
+      }
+    });
+
+    // SIGN IN logic
+    const form = document.getElementById("loginForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password, role: "Student" }) // 👈 specify role
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // ✅ Redirect after successful login
+      window.location.href = "home.html";
+    } else {
+      alert(data.message);
+    }
+  });
+  </script>
+</body>
+</html>
